@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.servmanagment.LoginController"
+      style="-fx-background-color: linear-gradient(to bottom right, #2980b9, #2c3e50);">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+
+    <VBox spacing="20" alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.95); 
+          -fx-padding: 30; -fx-background-radius: 15;
+          -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 5);">
+        
+        <Label text="Подключение к серверу" 
+               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+        <GridPane vgap="15" hgap="15" style="-fx-padding: 20;">
+            <Label text="Хост:" GridPane.columnIndex="0" GridPane.rowIndex="0" 
+                   style="-fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+            <TextField fx:id="hostField" promptText="например: example.com" 
+                      GridPane.columnIndex="1" GridPane.rowIndex="0"
+                      style="-fx-background-radius: 5; -fx-border-radius: 5; 
+                             -fx-border-color: #dcdde1; -fx-border-width: 1;
+                             -fx-padding: 8;"/>
+
+            <Label text="Порт:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                   style="-fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+            <TextField fx:id="portField" text="22" 
+                      GridPane.columnIndex="1" GridPane.rowIndex="1"
+                      style="-fx-background-radius: 5; -fx-border-radius: 5; 
+                             -fx-border-color: #dcdde1; -fx-border-width: 1;
+                             -fx-padding: 8;"/>
+
+            <Label text="Пользователь:" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                   style="-fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+            <TextField fx:id="usernameField" promptText="имя пользователя" 
+                      GridPane.columnIndex="1" GridPane.rowIndex="2"
+                      style="-fx-background-radius: 5; -fx-border-radius: 5; 
+                             -fx-border-color: #dcdde1; -fx-border-width: 1;
+                             -fx-padding: 8;"/>
+
+            <Label text="Пароль:" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                   style="-fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+            <PasswordField fx:id="passwordField" promptText="пароль" 
+                          GridPane.columnIndex="1" GridPane.rowIndex="3"
+                          style="-fx-background-radius: 5; -fx-border-radius: 5; 
+                                 -fx-border-color: #dcdde1; -fx-border-width: 1;
+                                 -fx-padding: 8;"/>
+        </GridPane>
+
+        <VBox spacing="10" alignment="CENTER">
+            <Button fx:id="connectButton" text="Подключиться" onAction="#onConnectButtonClick"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white; 
+                           -fx-font-weight: bold; -fx-padding: 12 30; 
+                           -fx-background-radius: 5; -fx-cursor: hand;
+                           -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 2);"/>
+            <ProgressIndicator fx:id="progressIndicator" visible="false"/>
+            <Label fx:id="statusLabel" visible="false" style="-fx-text-fill: #e74c3c;"/>
+        </VBox>
+    </VBox>
+</VBox> 
