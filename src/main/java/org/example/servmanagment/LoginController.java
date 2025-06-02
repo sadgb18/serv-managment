@@ -11,26 +11,34 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+// контроллер окна логина
+// вся логика для подключения к серверу по SSH
 public class LoginController {
+    // аннотация
     @FXML private TextField hostField;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private TextField portField;
     @FXML private Button connectButton;
 
+    // сохраняем SSH сессию после подключения
     private Session sshSession;
 
+    // метод вызывается когда юзер жмет на кнопку "Подключиться"
     @FXML
     protected void onConnectButtonClick() {
+        // берем данные из полей ввода и убираем пробелы по краям
         String host = hostField.getText().trim();
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
         
+        // проверяем что все поля заполнены
         if (host.isEmpty() || username.isEmpty() || password.isEmpty()) {
             showError("Ошибка", "Пожалуйста, заполните все поля");
             return;
         }
 
+        // парсим порт и проверяем что он валидный
         int port;
         try {
             port = Integer.parseInt(portField.getText().trim());
@@ -42,16 +50,17 @@ public class LoginController {
             return;
         }
 
-        // Отключаем кнопку на время подключения
+        // блокируем кнопку чтобы юзер не спамил подключениями
         connectButton.setDisable(true);
 
-        // Выполняем подключение в отдельном потоке
+        // подключение делаем в отдельном потоке
+        // потому что оно может тормозить, а UI должен оставаться отзывчивым
         new Thread(() -> {
             try {
+                // создаем SSH клиент и сессию
                 JSch jsch = new JSch();
                 sshSession = jsch.getSession(username, host, port);
-                
-                // Создаем и устанавливаем UserInfo
+
                 UserInfo userInfo = new UserInfo() {
                     public String getPassword() { return password; }
                     public boolean promptYesNo(String str) { return true; }
@@ -63,9 +72,12 @@ public class LoginController {
                 
                 sshSession.setUserInfo(userInfo);
                 sshSession.setPassword(password);
+                // отключаем проверку ключа сервера
                 sshSession.setConfig("StrictHostKeyChecking", "no");
-                sshSession.connect(5000); // таймаут 5 секунд
+                // пробуем подключиться с таймаутом 5 сек
+                sshSession.connect(5000);
 
+                // если подключились - открываем главное окно
                 Platform.runLater(() -> {
                     try {
                         openMainWindow();
@@ -75,6 +87,7 @@ public class LoginController {
                     }
                 });
             } catch (JSchException e) {
+                // показываем ошибку
                 Platform.runLater(() -> {
                     String message = e.getMessage();
                     if (message.contains("Auth fail") || message.contains("Authentication failed")) {
@@ -90,24 +103,30 @@ public class LoginController {
         }).start();
     }
 
+    // открываем главное окно приложения
     private void openMainWindow() throws Exception {
+        // грузим разметку из fxml
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
+        // создаем контроллер и передаем ему SSH сессию
         MainController mainController = new MainController(sshSession);
         fxmlLoader.setController(mainController);
+        // создаем окно и показываем его
         Scene scene = new Scene(fxmlLoader.load(), 1024, 768);
         Stage stage = new Stage();
         stage.setTitle("Управление сервером");
         stage.setScene(scene);
         stage.show();
 
-        // Закрываем окно входа
+        // закрываем окно логина
         ((Stage) hostField.getScene().getWindow()).close();
     }
 
+    // разблокируем кнопку подключения
     private void enableConnectButton() {
         connectButton.setDisable(false);
     }
 
+    // показываем окошко с ошибкой
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -116,6 +135,8 @@ public class LoginController {
         alert.showAndWait();
     }
 
+    // этот метод вызывается при закрытии приложения
+    // отключаемся от сервера если были подключены
     public void shutdown() {
         if (sshSession != null && sshSession.isConnected()) {
             sshSession.disconnect();
